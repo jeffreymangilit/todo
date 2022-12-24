@@ -110,12 +110,17 @@ main {
 
 .form-check-input {
   margin: inherit;
-  margin-right: 0.5rem;
+  margin-right: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  
 }
 
 input[type="checkbox"]:checked + input {
   color: #dc3545;
   text-decoration: line-through;
+
 }
 
 
