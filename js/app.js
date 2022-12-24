@@ -1,83 +1,87 @@
-window.addEventListener("load", () => {
-  const form = document.querySelector("#taskform");
+const toDoArray = localStorage.getItem("items")
+  ? JSON.parse(localStorage.getItem("items"))
+  : [];
+
+const addTask = document.querySelector("#addTask");
+
+addTask.addEventListener("click", function () {
   const input = document.querySelector("#taskInput");
-  const taskList = document.querySelector("#task");
-
-  form.addEventListener("submit", (evt) => {
-    evt.preventDefault();
-
-    CreateTask();
-  });
-
-  function CreateTask() {
-    const task = input.value;
-
-    if (!task) {
-      alert("Please add a Task");
-      return;
-    }
-
-    //create task Div
-    const taskEl = document.createElement("div");
-    taskEl.classList.add("task");
-
-    //create content Div
-    const taskContentEl = document.createElement("div");
-    taskContentEl.classList.add("content");
-    taskEl.appendChild(taskContentEl);
-
-    //create checkbox inside content Div
-    const checkBox = document.createElement("input");
-    checkBox.type = "checkbox";
-    checkBox.classList.add("form-check-input");
-    taskContentEl.appendChild(checkBox);
-
-    //create text input inside content Div
-    const taskInput = document.createElement("input");
-    taskInput.classList.add("text");
-    taskInput.type = "text";
-    taskInput.value = task;
-    taskInput.setAttribute("readonly", "readonly");
-    taskContentEl.appendChild(taskInput);
-
-    //create action div
-    const taskAction = document.createElement("div");
-    taskAction.classList.add("action");
-    taskEl.appendChild(taskAction);
-
-    //create Edit Button inside action div
-    const EditBtn = document.createElement("button");
-    EditBtn.classList.add("btn");  
-    EditBtn.classList.add("btn-secondary");
-    EditBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
-    
-    taskAction.appendChild(EditBtn);
-
-    //create Delete Button inside action div
-    const DelBtn = document.createElement("button");
-    DelBtn.classList.add("btn");  
-    DelBtn.classList.add("btn-danger");
-    DelBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-
-    taskAction.appendChild(DelBtn);
-
-    //create All Elements
-    taskList.appendChild(taskEl);
-    input.value = "";
-
-    EditBtn.addEventListener("click", function () {
-      if (EditBtn.innerHTML == '<i class="fa-solid fa-pen-to-square"></i>') {
-        taskInput.removeAttribute("readonly");
-        taskInput.focus();
-        EditBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
-      } else {
-        taskInput.setAttribute("readonly", "readonly");
-        EditBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
-      }
-    });
-
-    DelBtn.addEventListener("click", function () {
-      taskList.removeChild(taskEl);
-    });
+  if (!input.value) {
+    alert("Please add a Task");
+    return;
+  } else {
+    createTask(input);
   }
 });
+
+function displayTask() {
+  let task = "";
+  for (let i = 0; i < toDoArray.length; i++) {
+    task += 
+    `<div class="task">
+        <div class="content">
+            <input type="checkbox" class="form-check-input">
+            <input type = "text" class="text" value="${toDoArray[i]}" readonly> 
+        </div>        
+        <div class="action">                          
+            <button class="btn btn-secondary edit"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="btn btn-danger delete"><i class="fa-solid fa-trash"></i></button>          
+        </div>
+      </div> `;
+  }
+
+  document.querySelector(".taskContainer").innerHTML = task;
+
+  deleteListeners();
+  editListeners();
+}
+
+function deleteListeners() {
+  let deleteBtn = document.querySelectorAll(".delete");
+  deleteBtn.forEach((delBtn, i) => {
+    delBtn.addEventListener("click", () => {
+      deleteItem(i);
+    });
+  });
+}
+
+function deleteItem(i) {
+  toDoArray.splice(i, 1);
+  localStorage.setItem("items", JSON.stringify(toDoArray));
+  location.reload();
+}
+
+function editListeners() {
+  const editBtn = document.querySelectorAll(".edit");
+  const inputs = document.querySelectorAll(".text");
+  editBtn.forEach((eBtn, i) => {
+    eBtn.addEventListener("click", () => {
+      if (eBtn.innerHTML == '<i class="fa-solid fa-pen-to-square"></i>') {
+        inputs[i].removeAttribute("readonly");
+        inputs[i].focus();
+        eBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
+      } else if (eBtn.innerHTML == '<i class="fa-solid fa-floppy-disk"></i>') {
+        console.log("clicked");
+        updateItem(inputs[i].value, i);
+      }
+    });
+  });
+}
+
+function updateItem(text, i) {
+  const eBtn = document.querySelectorAll(".edit");
+  toDoArray[i] = text;
+  localStorage.setItem("items", JSON.stringify(toDoArray));
+  eBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+  location.reload();
+}
+
+function createTask(input) {
+  toDoArray.push(input.value);
+  localStorage.setItem("items", JSON.stringify(toDoArray));
+  location.reload();
+}
+
+window.onload = function () {
+  displayTask();
+};
